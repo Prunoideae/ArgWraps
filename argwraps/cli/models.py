@@ -1,10 +1,9 @@
 
 from dataclasses import dataclass
-from argwraps.cli.guards import Arg
-from argwraps.guards.abstract import AbstractGuard
+from .guards import Arg
 from typing import Any, Dict, List, Tuple, Union
 from types import FunctionType
-from argwraps.models.abstract import AbstractMatcher
+from ..models.abstract import AbstractMatcher
 import argparse
 import inspect
 
@@ -232,6 +231,10 @@ class SubCommand():
                 raise Exception()
         if self.selfmatcher is not None and self.selfmatcher[1] is not None:
             self.selfmatcher[1].inspect(args)
+
+    def __call__(self, *args: Any, **kwds: Any) -> Any:
+        self.parse_args(args=kwds)
+        return self.call()
 
     def subparser(self, subparsers: argparse._SubParsersAction):
         arggroups = list(filter(lambda x: x is not None, map(lambda x: x.parser(), self.submatchers.values())))

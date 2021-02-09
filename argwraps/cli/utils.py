@@ -1,7 +1,6 @@
 import argparse
 from typing import Dict, Tuple, Union
-from argwraps.cli.models import ArgMatcher, ArgMatches, SelfMatcher, SubCommand
-import inspect
+from .models import ArgMatcher, ArgMatches, SelfMatcher, SubCommand
 from types import FunctionType
 from functools import wraps
 
@@ -27,7 +26,7 @@ def arg(**kwargs):
 def subcommand(help: str = None):
     '''
     Wraps up function as subcommand of the cli.
-    
+
     This will make subcommand automatically registered to the global registry.
     '''
     def closure(fn: Union[FunctionType, Tuple[SelfMatcher, FunctionType]]):
@@ -53,7 +52,7 @@ def subcommand(help: str = None):
             self_matcher = (self_name, self_matcher)
 
         __registry__[name] = SubCommand(command=name, fn=fn, help=help, selfmatcher=self_matcher, submatchers=submatchers)
-        return fn
+        return __registry__[name]
     return closure
 
 
@@ -84,6 +83,9 @@ def cli_build(prog, help):
 def cli(prog, help):
     parser = cli_build(prog=prog, help=help)
     parsed = vars(parser.parse_args())
-    command = __registry__[parsed['argwraps_cli_command']]
-    command.parse_args(parsed)
-    command.call()
+    if parsed['argwraps_cli_command'] is not None:
+        command = __registry__[parsed['argwraps_cli_command']]
+        command.parse_args(parsed)
+        command.call()
+    else:
+        parser.print_help()

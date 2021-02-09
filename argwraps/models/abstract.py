@@ -1,4 +1,4 @@
-from argwraps.guards.abstract import AbstractGuard
+from ..guards.abstract import AbstractGuard
 from types import FunctionType
 from ..util import _
 from typing import Any, Dict
